@@ -1,40 +1,68 @@
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
 
-const acciones = require('./acciones');
-const emociones = require('./emociones');
-const juegos = require('./juegos');
-const admin = require('./admin');
-const menu = require('./menu');
+const { create } = require('@open-wa/wa-automate');
 
-const client = new Client({
-  authStrategy: new LocalAuth()
-});
+create({
+  sessionId: 'kenma-bot',
+  multiDevice: true,
+  headless: true,
+  useChrome: false,
+}).then(client => start(client));
 
-client.on('qr', (qr) => {
-  qrcode.generate(qr, { small: true });
-});
+function start(client) {
+  console.log('✅ Kenma-Bot listo');
 
-client.on('ready', () => {
-  console.log('✅ Bot listo');
-});
+  client.onMessage(async message => {
+    const { body, from } = message;
+    const command = body ? body.trim().toLowerCase() : '';
 
-client.on('message', async (message) => {
-  if (!message.body) return; // Ignorar mensajes sin texto
+    if (command === '!menu') {
+      const imageUrl = 'https://raw.githubusercontent.com/leninlg/Kenma-Bot.2/main/logo.png';
 
-  const command = message.body.trim().split(' ')[0].toLowerCase();
-  if (!command) return; // Ignorar si no hay comando
+      const textoMenu = `
+📋 *Menú de Comandos Kenma-Bot*
 
-  const comandos = { ...acciones, ...emociones, ...juegos, ...admin, ...menu };
+👾 *Juegos:*
+- !ppt [piedra|papel|tijeras]
+- !dado
+- !moneda
+- !8ball [pregunta]
 
-  if (comandos[command]) {
-    try {
-      await comandos[command](client, message);
-    } catch (err) {
-      console.error('❌ Error al ejecutar comando:', err);
-      client.sendMessage(message.from, 'Hubo un error al ejecutar el comando.');
+🎭 *Acciones:*
+- !abrazo
+- !beso
+- !pat
+- !saludo
+- !chocar
+- !baile
+- !correr
+- !duerme
+- !enojar
+- !llorar
+
+⚙️ *Administración:*
+- !tag
+- !grupo abrir/cerrar
+- !setreglas [texto]
+- !reglas
+- !setbienvenida [texto]
+- !bienvenida
+- !setdespedida [texto]
+- !despedida
+
+ℹ️ *Utilidad:*
+- !menu (este mensaje)
+
+¡Usa los comandos escribiendo el símbolo ! seguido del nombre del comando!
+      `;
+
+      try {
+        await client.sendImage(from, imageUrl, 'logo.png', textoMenu);
+      } catch (error) {
+        console.error('Error al enviar menú:', error);
+        await client.sendText(from, '❌ Error al mostrar el menú. Intenta más tarde.');
+      }
     }
-  }
-});
 
-client.initialize();
+    // Aquí agregas más comandos...
+  });
+}
