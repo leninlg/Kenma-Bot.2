@@ -1,23 +1,43 @@
+const { makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@adiwajshing/baileys');
+const { Boom } = require('@hapi/boom');
+const fs = require('fs');
+const path = require('path');
 
-const { create } = require('@open-wa/wa-automate');
+const { state, saveState } = useSingleFileAuthState('./auth_info.json');
 
-create({
-  sessionId: 'kenma-bot',
-  multiDevice: true,
-  headless: true,
-  useChrome: false,
-}).then(client => start(client));
+async function startBot() {
+  const sock = makeWASocket({
+    auth: state,
+    printQRInTerminal: true
+  });
 
-function start(client) {
-  console.log('✅ Kenma-Bot listo');
+  sock.ev.on('creds.update', saveState);
 
-  client.onMessage(async message => {
-    const { body, from } = message;
-    const command = body ? body.trim().toLowerCase() : '';
+  sock.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect } = update;
+
+    if (connection === 'close') {
+      const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
+
+      if (reason === DisconnectReason.loggedOut) {
+        console.log('🔴 Desconectado: Necesitas escanear el QR de nuevo.');
+      } else {
+        console.log('🟡 Conexión cerrada, intentando reconectar...');
+        startBot();
+      }
+    } else if (connection === 'open') {
+      console.log('✅ Kenma-Bot conectado exitosamente.');
+    }
+  });
+
+  sock.ev.on('messages.upsert', async ({ messages }) => {
+    const m = messages[0];
+    if (!m.message || m.key.fromMe) return;
+
+    const body = m.message.conversation || m.message.extendedTextMessage?.text || '';
+    const command = body.trim().toLowerCase();
 
     if (command === '!menu') {
-      const imageUrl = 'https://raw.githubusercontent.com/leninlg/Kenma-Bot.2/main/logo.png';
-
       const textoMenu = `
 📋 *Menú de Comandos Kenma-Bot*
 
@@ -51,18 +71,11 @@ function start(client) {
 
 ℹ️ *Utilidad:*
 - !menu (este mensaje)
-
-¡Usa los comandos escribiendo el símbolo ! seguido del nombre del comando!
       `;
 
-      try {
-        await client.sendImage(from, imageUrl, 'logo.png', textoMenu);
-      } catch (error) {
-        console.error('Error al enviar menú:', error);
-        await client.sendText(from, '❌ Error al mostrar el menú. Intenta más tarde.');
-      }
+      await sock.sendMessage(m.key.remoteJid, { text: textoMenu });
     }
-
-    // Aquí agregas más comandos...
   });
 }
+
+startBot();
