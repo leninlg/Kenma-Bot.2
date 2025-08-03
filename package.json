@@ -1,7 +1,7 @@
 {
   "name": "kenma-bot",
   "version": "1.0.0",
-  "description": "Bot de WhatsApp con comandos de administración, acciones y juegos",
+  "description": "Bot de WhatsApp con @open-wa/wa-automate",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -9,6 +9,6 @@
   "author": "leninlg",
   "license": "MIT",
   "dependencies": {
-  "whatsapp-web.js": "^1.18.5",
-  "qrcode-terminal": "^0.12.0"
+    "@open-wa/wa-automate": "^4.47.1"
   }
+}
