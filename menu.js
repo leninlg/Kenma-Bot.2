@@ -5,7 +5,9 @@ create({
   multiDevice: true,
   headless: true,
   useChrome: false,
-}).then(client => start(client));
+}).then(client => start(client)).catch(err => {
+  console.error('❌ Error al iniciar el bot:', err);
+});
 
 function start(client) {
   console.log('✅ Kenma-Bot listo');
@@ -57,7 +59,7 @@ function start(client) {
       try {
         await client.sendImage(from, imageUrl, 'logo.png', textoMenu);
       } catch (error) {
-        console.error('Error al enviar menú:', error);
+        console.error('❌ Error al enviar el menú:', error);
         await client.sendText(from, '❌ Error al mostrar el menú. Intenta más tarde.');
       }
     }
