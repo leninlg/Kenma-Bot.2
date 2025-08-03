@@ -1,7 +1,5 @@
 const { makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@adiwajshing/baileys');
 const { Boom } = require('@hapi/boom');
-const fs = require('fs');
-const path = require('path');
 
 const { state, saveState } = useSingleFileAuthState('./auth_info.json');
 
