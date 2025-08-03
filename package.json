@@ -1,7 +1,7 @@
 {
   "name": "kenma-bot",
   "version": "1.0.0",
-  "description": "Bot WhatsApp usando @open-wa/wa-automate compatible con Termux",
+  "description": "Bot de WhatsApp compatible con Termux usando @open-wa/wa-automate",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -9,6 +9,6 @@
   "author": "leninlg",
   "license": "MIT",
   "dependencies": {
-    "@open-wa/wa-automate": "^4.47.1"
+    "@open-wa/wa-automate": "^5.0.0"
   }
 }
