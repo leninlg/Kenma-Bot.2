@@ -1,6 +1,12 @@
+const { MessageMedia } = require('whatsapp-web.js');
+
 module.exports = {
   '!menu': async (client, message) => {
-    const textoMenu = `
+    try {
+      const imageUrl = 'https://raw.githubusercontent.com/leninlg/Kenma-Bot.2/main/logo.png';
+      const media = await MessageMedia.fromUrl(imageUrl);
+
+      const textoMenu = `
 📋 *Menú de Comandos Kenma-Bot*
 
 👾 *Juegos:*
@@ -35,7 +41,12 @@ module.exports = {
 - !menu (este mensaje)
 
 ¡Usa los comandos escribiendo el símbolo ! seguido del nombre del comando!
-    `;
-    await message.reply(textoMenu);
+      `;
+
+      await client.sendMessage(message.from, media, { caption: textoMenu });
+    } catch (error) {
+      console.error('Error en !menu:', error);
+      await message.reply('❌ Error al mostrar el menú. Intenta de nuevo más tarde.');
+    }
   }
 };
